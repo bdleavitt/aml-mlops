@@ -1,0 +1,13 @@
+name: BDL Code checks
+
+on:
+  workflow_dispatch:
+
+jobs:
+  job1:
+    name: Code Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checking code
+        run: |
+          echo "Code checks will be implemented later"
