@@ -1,0 +1,55 @@
+name: Model Training and Deploy
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    branches:
+      - "main"
+
+jobs:
+  dev_job:
+    name: Model Training
+    runs-on: ubuntu-latest
+    environment: 
+        name: development
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@main
+      - name: Use Python version 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+      - name: Install az ml extension
+        run: az extension add -n ml -y
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+      - name: train model
+        run: |
+          az ml job create --file src/job.yml -g RG-AzureML --workspace-name bdl-azureml-eastus-01 --stream --set inputs.training_data.path=azureml:diabetes-dev-folder:1 experiment_name=diabetes-experiment-dev
+  prod_job:
+    name: Model Training
+    needs: [dev_job]
+    runs-on: ubuntu-latest
+    environment: 
+        name: production
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@main
+      - name: Use Python version 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+      - name: Install az ml extension
+        run: az extension add -n ml -y
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{secrets.AZURE_CREDENTIALS}}
+      - name: train model
+        run: |
+          az ml job create --file src/job.yml -g RG-AzureML --workspace-name bdl-azureml-eastus-01 --stream --set inputs.training_data.path=azureml:diabetes-production-folder:1 experiment_name=diabetes-experiment-production
