@@ -5,6 +5,7 @@ on:
   pull_request:
     types:
       - opened
+      - synchronize
     branches:
       - "main"
 
@@ -29,7 +30,7 @@ jobs:
           creds: ${{secrets.AZURE_CREDENTIALS}}
       - name: train model
         run: |
-          az ml job create --file src/job.yml -g RG-AzureML --workspace-name bdl-azureml-eastus-01 --stream --inputs training_data=azureml:diabetes-dev-folder experiment_name=diabetes-experiment-dev
+          az ml job create --file src/job.yml -g RG-AzureML --workspace-name bdl-azureml-eastus-01 --stream --set inputs.training_data.path=azureml:diabetes-dev-folder:1 experiment_name=diabetes-experiment-dev
   prod_job:
     name: Model Training
     needs: [dev_job]
@@ -51,4 +52,4 @@ jobs:
           creds: ${{secrets.AZURE_CREDENTIALS}}
       - name: train model
         run: |
-          az ml job create --file src/job.yml -g RG-AzureML --workspace-name bdl-azureml-eastus-01 --stream --inputs training_data=azureml:diabetes-production-folder experiment_name=diabetes-experiment-production
+          az ml job create --file src/job.yml -g RG-AzureML --workspace-name bdl-azureml-eastus-01 --stream --set inputs.training_data.path=azureml:diabetes-production-folder:1 experiment_name=diabetes-experiment-production
