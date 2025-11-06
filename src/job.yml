@@ -7,11 +7,6 @@ inputs:
     type: uri_folder
     path: azureml:diabetes-dev-folder-yaml:3
   reg_rate: 0.02
-outputs:
-  diabetes_model_output:
-    type: mlflow_model
-    mode: rw_mount
-
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
 compute: azureml:cpu-cluster-01
 experiment_name: diabetes-experiment
